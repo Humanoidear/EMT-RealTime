@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EMT Valencia — Live Bus Map</title>
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      }
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='emt-logo.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='emt-logo.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <header class="brand">
+      <div class="brand-row">
+        <img class="logo" src="{{ url_for('static', filename='emt-logo.png') }}" alt="EMT València">
+        <button class="icon-btn" id="theme-toggle" title="Light / dark"><i data-lucide="sun"></i></button>
+        <button class="icon-btn" id="sidebar-toggle" title="Collapse / expand panel">
+          <i data-lucide="chevron-left"></i>
+        </button>
+      </div>
+    </header>
+
+    <details class="section" open>
+      <summary class="section-head">
+        <span class="section-title"><i data-lucide="search"></i> Find a stop</span>
+        <i data-lucide="chevron-down" class="chev"></i>
+      </summary>
+      <div class="section-body">
+        <div class="row">
+          <div class="input-wrap">
+            <i data-lucide="search"></i>
+            <input class="input has-icon" id="stop-search" placeholder="Stop name or number…"
+                   autocomplete="off" spellcheck="false">
+          </div>
+          <button class="btn btn-primary icon-only" id="locate" title="Use my location">
+            <i data-lucide="locate-fixed"></i>
+          </button>
+        </div>
+        <div class="status" id="stop-status"><i data-lucide="map-pin"></i> Search a stop or use your location</div>
+        <ul class="stop-list" id="stop-list"></ul>
+      </div>
+    </details>
+
+    <details class="section" id="fav-section" hidden>
+      <summary class="section-head">
+        <span class="section-title"><i data-lucide="star"></i> Favorites</span>
+        <span class="fav-count" id="fav-count"></span>
+        <i data-lucide="chevron-down" class="chev"></i>
+      </summary>
+      <div class="section-body">
+        <ul class="stop-list" id="fav-list"></ul>
+      </div>
+    </details>
+
+    <footer class="foot">
+      <i data-lucide="database"></i>
+      Stops &amp; routes: València open data (CC BY 4.0) · positions: EMT
+    </footer>
+  </aside>
+
+  <div id="map"></div>
+
+  <div class="map-controls">
+    <button class="track-chip glass" id="track-chip" hidden title="Stop tracking this line">
+      <span class="badge" id="track-chip-line"></span>
+      <span class="track-chip-text" id="track-chip-text"></span>
+      <i data-lucide="x"></i>
+    </button>
+    <button class="btn btn-outline glass" id="toggle-3d" title="Toggle 3D buildings">
+      <i data-lucide="box"></i> 3D
+    </button>
+    <div class="legend glass">
+      <span class="legend-item"><span class="line-ida"></span> ida</span>
+      <span class="legend-item"><span class="line-vuelta"></span> vuelta</span>
+    </div>
+  </div>
+
+  <div class="bottom-right">
+    <section class="float-panel glass" id="stop-panel" hidden>
+      <div class="panel-head">
+        <span class="panel-icon stop"><i data-lucide="map-pin"></i></span>
+        <div class="panel-text">
+          <div class="card-title" id="stop-panel-name">Stop</div>
+          <div class="card-description" id="stop-panel-sub"></div>
+        </div>
+        <button class="icon-btn" id="stop-panel-fav" title="Save / unsave this stop"><i data-lucide="star"></i></button>
+        <button class="icon-btn" id="stop-panel-close" title="Close"><i data-lucide="x"></i></button>
+      </div>
+      <div class="service-updates" id="stop-incidents"></div>
+      <ul class="eta-list" id="eta-list"></ul>
+      <div class="status" id="eta-status"></div>
+    </section>
+
+    <section class="float-panel glass" id="follow-card" hidden>
+      <div class="panel-head">
+        <span class="panel-icon bus"><i data-lucide="bus-front"></i></span>
+        <div class="panel-text">
+          <div class="card-title" id="follow-title">Following bus</div>
+          <div class="card-description"><span class="live-dot"></span><span id="follow-sub"></span></div>
+        </div>
+        <button class="icon-btn" id="follow-stop" title="Stop following"><i data-lucide="x"></i></button>
+      </div>
+      <ul class="eta-list" id="follow-list"></ul>
+    </section>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+  <script>window.CARTO_KEY = "{{ carto_key }}";</script>
+  <script src="{{ url_for('static', filename='motion.js') }}"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
